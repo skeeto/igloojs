@@ -1,27 +1,7 @@
 /**
- * Fluent WebGLProgram wrapper for managing variables and data. The
- * constructor compiles and links a program from a pair of shaders.
- * Throws an exception if compiling or linking fails.
- * @param {WebGLRenderingContext|HTMLCanvasElement} gl
- * @param {string} vertUrl
- * @param {string} vergrafUrl
- * @returns {WebGLProgram}
+ * @namespace
  */
-function IglooProgram(gl, vertUrl, fragUrl) {
-    if  (gl instanceof HTMLCanvasElement) {
-        gl = IglooProgram.getContext(gl);
-        if (gl == null) throw new Error('Could not create WebGL context.');
-    }
-    this.gl = gl;
-    this.program = gl.createProgram();
-    gl.attachShader(this.program, this.makeShader(gl.VERTEX_SHADER, vertUrl));
-    gl.attachShader(this.program, this.makeShader(gl.FRAGMENT_SHADER, fragUrl));
-    gl.linkProgram(this.program);
-    if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
-        throw new Error(gl.getProgramInfoLog(this.program));
-    }
-    this.vars = {};
-}
+var Igloo = Igloo || {};
 
 /**
  * Asynchronously or synchronously fetch data from the server.
@@ -29,7 +9,7 @@ function IglooProgram(gl, vertUrl, fragUrl) {
  * @param {Function} [callback]
  * @returns {string}
  */
-IglooProgram.fetch = function(url, callback) {
+Igloo.fetch = function(url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, Boolean(callback));
     if (callback != null) {
@@ -43,9 +23,10 @@ IglooProgram.fetch = function(url, callback) {
 
 /**
  * @param {HTMLCanvasElement} canvas
+ * @param {boolean} [error] If true, throw an error rather than return null
  * @returns {?WebGLRenderingContext} a WebGL rendering context.
  */
-IglooProgram.getContext = function(canvas) {
+Igloo.getContext = function(canvas, error) {
     var gl;
     try {
         gl = canvas.getContext('webgl') ||
@@ -53,7 +34,35 @@ IglooProgram.getContext = function(canvas) {
     } catch (e) {
         gl = null;
     }
-    return gl;
+    if (gl == null && error) {
+        throw new Error('Could not create WebGL context.');
+    } else {
+        return gl;
+    }
+};
+
+/**
+ * Fluent WebGLProgram wrapper for managing variables and data. The
+ * constructor compiles and links a program from a pair of shaders.
+ * Throws an exception if compiling or linking fails.
+ * @param {WebGLRenderingContext|HTMLCanvasElement} gl
+ * @param {string} vertUrl
+ * @param {string} vergrafUrl
+ * @constructor
+ */
+Igloo.Program = function(gl, vertUrl, fragUrl) {
+    if  (gl instanceof HTMLCanvasElement) {
+        gl = Igloo.getContext(gl, true);
+    }
+    this.gl = gl;
+    this.program = gl.createProgram();
+    gl.attachShader(this.program, this.makeShader(gl.VERTEX_SHADER, vertUrl));
+    gl.attachShader(this.program, this.makeShader(gl.FRAGMENT_SHADER, fragUrl));
+    gl.linkProgram(this.program);
+    if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(this.program));
+    }
+    this.vars = {};
 };
 
 /**
@@ -62,10 +71,10 @@ IglooProgram.getContext = function(canvas) {
  * @param {string} url
  * @returns {WebGLShader}
  */
-IglooProgram.prototype.makeShader = function(type, url) {
+Igloo.Program.prototype.makeShader = function(type, url) {
     var gl = this.gl;
     var shader = gl.createShader(type);
-    gl.shaderSource(shader, IglooProgram.fetch(url));
+    gl.shaderSource(shader, Igloo.fetch(url));
     gl.compileShader(shader);
     if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         return shader;
@@ -76,9 +85,9 @@ IglooProgram.prototype.makeShader = function(type, url) {
 
 /**
  * Tell WebGL to use this program right now.
- * @returns {IglooProgram} this
+ * @returns {Igloo.Program} this
  */
-IglooProgram.prototype.use = function() {
+Igloo.Program.prototype.use = function() {
     this.gl.useProgram(this.program);
     return this;
 };
@@ -87,9 +96,9 @@ IglooProgram.prototype.use = function() {
  * Declare a uniform or set a uniform's data.
  * @param {string} name uniform variable name
  * @param {number|Point} [value]
- * @returns {IglooProgram} this
+ * @returns {Igloo.Program} this
  */
-IglooProgram.prototype.uniform = function(name, value) {
+Igloo.Program.prototype.uniform = function(name, value) {
     if (value == null) {
         this.vars[name] = this.gl.getUniformLocation(this.program, name);
     } else {
@@ -121,16 +130,16 @@ IglooProgram.prototype.uniform = function(name, value) {
  * @param {string} name attrib variable name
  * @param {WebGLBuffer} [value]
  * @param {number} [size] element size
- * @returns {IglooProgram} this
+ * @returns {Igloo.Program} this
  */
-IglooProgram.prototype.attrib = function(name, value, size) {
+Igloo.Program.prototype.attrib = function(name, value, size) {
     if (value == null) {
         this.vars[name] = this.gl.getAttribLocation(this.program, name);
         this.gl.enableVertexAttribArray(this.vars.position);
     } else {
         if (this.vars[name] == null) this.attrib(name);
         var gl = this.gl;
-        if (value instanceof IglooBuffer) {
+        if (value instanceof Igloo.Buffer) {
             value.bind();
         } else {
             gl.bindBuffer(gl.ARRAY_BUFFER, value);
@@ -144,12 +153,61 @@ IglooProgram.prototype.attrib = function(name, value, size) {
  * Call drawArrays with this program. You must call this.use() first.
  * @param {number} mode
  * @param {number} count the total buffer length
- * @returns {IglooProgram} this
+ * @returns {Igloo.Program} this
  */
-IglooProgram.prototype.draw = function(mode, count) {
+Igloo.Program.prototype.draw = function(mode, count) {
     this.gl.drawArrays(mode, 0, count);
     if (this.gl.getError() !== this.gl.NO_ERROR) {
         throw new Error('WebGL rendering error');
+    }
+    return this;
+};
+
+/**
+ * Fluent WebGLBuffer wrapper.
+ * @param {WebGLRenderingContext|HTMLCanvasElement} gl
+ * @param {ArrayBuffer|ArrayBufferView} [data]
+ * @param {GLenum} [usage]
+ * @returns {WebGLProgram}
+ * @constructor
+ */
+Igloo.Buffer = function(gl, data, usage) {
+    if  (gl instanceof HTMLCanvasElement) {
+        gl = Igloo.getContext(gl, true);
+    }
+    this.gl = gl;
+    this.buffer = gl.createBuffer();
+    this.size = -1;
+    if (data != null) {
+        this.update(data, usage);
+    }
+};
+
+/**
+ * Binds this buffer to ARRAY_BUFFER.
+ * @returns {Igloo.Buffer} this
+ */
+Igloo.Buffer.prototype.bind = function() {
+    var gl = this.gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    return this;
+};
+
+/**
+ * @param
+ * @param {ArrayBuffer|ArrayBufferView} data
+ * @param {GLenum} [usage]
+ * @returns {Igloo.Buffer} this
+ */
+Igloo.Buffer.prototype.update = function(data, usage) {
+    var gl = this.gl;
+    usage = usage == null ? gl.STREAM_DRAW : usage;
+    this.bind();
+    if (this.size !== data.byteLength) {
+        gl.bufferData(gl.ARRAY_BUFFER, data, usage);
+        this.size = data.byteLength;
+    } else {
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, data);
     }
     return this;
 };

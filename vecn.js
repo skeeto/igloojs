@@ -1,7 +1,8 @@
 /**
- * JavaScript fast vector implementations via metaprogramming.
+ * Fast, immutable vector implementations via metaprogramming.
+ * @namespace
+ * @constructor
  */
-
 var VecN = VecN || function() {};
 
 VecN.FIELDS = 'xyzwabcdefghijklmnopqrstuv'.split('');

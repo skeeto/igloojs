@@ -13,12 +13,12 @@ original C-style result checking.
 
 ```js
 var canvas = document.getElementById('my-canvas');
-var program = new IglooProgram(canvas, 'src/project.vert', 'src/color.frag');
+var program = new Igloo.Program(canvas, 'src/project.vert', 'src/color.frag');
 // ...
 program.use()
     .uniform('color', vec3(1, 0, 0))
     .uniform('scale', 10)
-    .attrib('points', vertices)
+    .attrib('points', buffer)
     .draw(program.gl.TRIANGLES, vertices.length / 3);
 ```
 
