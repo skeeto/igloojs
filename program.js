@@ -130,7 +130,11 @@ IglooProgram.prototype.attrib = function(name, value, size) {
     } else {
         if (this.vars[name] == null) this.attrib(name);
         var gl = this.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, value);
+        if (value instanceof IglooBuffer) {
+            value.bind();
+        } else {
+            gl.bindBuffer(gl.ARRAY_BUFFER, value);
+        }
         gl.vertexAttribPointer(this.vars[name], size, gl.FLOAT, false, 0, 0);
     }
     return this;
