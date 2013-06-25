@@ -1,6 +1,6 @@
 # Igloo WebGL
 
-*This library is still in its early stage.*
+*This library is still in its early stages.*
 
 Igloo is a fluent, object-oriented wrapper API for WebGL. The goal is
 to maintain WebGL's low-level graphics access but fit it to JavaScript
@@ -30,5 +30,5 @@ each other like GLSL vectors.
 var foo = vec3(1, 2, 3);
 foo.zxy;         // => "[Vec3 (3, 1, 2)]"
 var bar = vec4(foo.xy, -1, 0);
-bar.toString();  // => "[Vec4 (1, 2, -1, 0)]
+bar;             // => "[Vec4 (1, 2, -1, 0)]
 ```
