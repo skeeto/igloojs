@@ -175,6 +175,7 @@ Igloo.Buffer = function(gl, data, usage) {
     if  (gl instanceof HTMLCanvasElement) {
         gl = Igloo.getContext(gl, true);
     }
+    usage = usage == null ? gl.STATIC_DRAW : usage;
     this.gl = gl;
     this.buffer = gl.createBuffer();
     this.size = -1;
