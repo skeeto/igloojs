@@ -93,12 +93,13 @@ Igloo.Program.prototype.use = function() {
 };
 
 /**
- * Declare a uniform or set a uniform's data.
+ * Declare/set a uniform or set a uniform's data.
  * @param {string} name uniform variable name
  * @param {number|Point} [value]
+ * @param {boolean} [i] if true, use the integer function
  * @returns {Igloo.Program} this
  */
-Igloo.Program.prototype.uniform = function(name, value) {
+Igloo.Program.prototype.uniform = function(name, value, i) {
     if (value == null) {
         this.vars[name] = this.gl.getUniformLocation(this.program, name);
     } else {
@@ -107,17 +108,28 @@ Igloo.Program.prototype.uniform = function(name, value) {
         if (value instanceof VecN) {
             switch (value.length) {
             case 2:
-                this.gl.uniform2f(v, value.x, value.y);
+                if (i)
+                    this.gl.uniform2i(v, value.x, value.y);
+                else
+                    this.gl.uniform2f(v, value.x, value.y);
                 break;
             case 3:
-                this.gl.uniform3f(v, value.x, value.y, value.z);
+                if (i)
+                    this.gl.uniform3i(v, value.x, value.y, value.z);
+                else
+                    this.gl.uniform3f(v, value.x, value.y, value.z);
                 break;
             case 4:
-                this.gl.uniform4f(v, value.x, value.y, value.z, value.w);
+                if (i)
+                    this.gl.uniform4i(v, value.x, value.y, value.z, value.w);
+                else
+                    this.gl.uniform4f(v, value.x, value.y, value.z, value.w);
                 break;
             default:
                 throw new Error('Invalid vector length');
             }
+        } else if (i) {
+            this.gl.uniform1i(v, value);
         } else {
             this.gl.uniform1f(v, value);
         }
