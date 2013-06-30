@@ -30,6 +30,7 @@ VecN.make = function(n) {
     }).join('\n'));
 
     Vec.prototype = Object.create(VecN.prototype);
+    Vec.prototype.constructor = Vec;
     Vec.prototype.length = n;
     Vec.prototype.VecN = this;
 
