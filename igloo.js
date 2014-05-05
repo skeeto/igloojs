@@ -142,9 +142,10 @@ Igloo.Program.prototype.uniform = function(name, value, i) {
  * @param {string} name attrib variable name
  * @param {WebGLBuffer} [value]
  * @param {number} [size] element size
+ * @param {number} [stride]
  * @returns {Igloo.Program} this
  */
-Igloo.Program.prototype.attrib = function(name, value, size) {
+Igloo.Program.prototype.attrib = function(name, value, size, stride) {
     if (value == null) {
         this.vars[name] = this.gl.getAttribLocation(this.program, name);
         this.gl.enableVertexAttribArray(this.vars[name]);
@@ -156,7 +157,8 @@ Igloo.Program.prototype.attrib = function(name, value, size) {
         } else {
             gl.bindBuffer(gl.ARRAY_BUFFER, value);
         }
-        gl.vertexAttribPointer(this.vars[name], size, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(this.vars[name], size, gl.FLOAT,
+                               false, stride == null ? 0 : stride, 0);
     }
     return this;
 };
