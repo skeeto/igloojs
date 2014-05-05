@@ -147,7 +147,7 @@ Igloo.Program.prototype.uniform = function(name, value, i) {
 Igloo.Program.prototype.attrib = function(name, value, size) {
     if (value == null) {
         this.vars[name] = this.gl.getAttribLocation(this.program, name);
-        this.gl.enableVertexAttribArray(this.vars.position);
+        this.gl.enableVertexAttribArray(this.vars[name]);
     } else {
         if (this.vars[name] == null) this.attrib(name);
         var gl = this.gl;
