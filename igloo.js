@@ -47,17 +47,20 @@ Igloo.getContext = function(canvas, error) {
  * Throws an exception if compiling or linking fails.
  * @param {WebGLRenderingContext|HTMLCanvasElement} gl
  * @param {string} vertUrl
- * @param {string} vergrafUrl
+ * @param {string} fragUrl
+ * @param {Function} [tff] source transform function
  * @constructor
  */
-Igloo.Program = function(gl, vertUrl, fragUrl) {
+Igloo.Program = function(gl, vertUrl, fragUrl, tff) {
     if  (gl instanceof HTMLCanvasElement) {
         gl = Igloo.getContext(gl, true);
     }
     this.gl = gl;
     this.program = gl.createProgram();
-    gl.attachShader(this.program, this.makeShader(gl.VERTEX_SHADER, vertUrl));
-    gl.attachShader(this.program, this.makeShader(gl.FRAGMENT_SHADER, fragUrl));
+    gl.attachShader(this.program,
+                    this.makeShader(gl.VERTEX_SHADER, vertUrl, tff));
+    gl.attachShader(this.program,
+                    this.makeShader(gl.FRAGMENT_SHADER, fragUrl, tff));
     gl.linkProgram(this.program);
     if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
         throw new Error(gl.getProgramInfoLog(this.program));
@@ -69,12 +72,14 @@ Igloo.Program = function(gl, vertUrl, fragUrl) {
  * Compile a shader from a URL.
  * @param {number} type
  * @param {string} url
+ * @param {Function} [tff] source transform function
  * @returns {WebGLShader}
  */
-Igloo.Program.prototype.makeShader = function(type, url) {
+Igloo.Program.prototype.makeShader = function(type, url, tff) {
     var gl = this.gl;
-    var shader = gl.createShader(type);
-    gl.shaderSource(shader, Igloo.fetch(url));
+    var shader = gl.createShader(type), source = Igloo.fetch(url);
+    if (tff != null) source = tff(source);
+    gl.shaderSource(shader, source);
     gl.compileShader(shader);
     if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         return shader;
