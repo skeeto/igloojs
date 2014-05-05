@@ -101,7 +101,7 @@ Igloo.Program.prototype.use = function() {
  * Declare/set a uniform or set a uniform's data.
  * @param {string} name uniform variable name
  * @param {number|Point} [value]
- * @param {boolean} [i] if true, use the integer function
+ * @param {boolean|number} [i] size, or if true use the integer version
  * @returns {Igloo.Program} this
  */
 Igloo.Program.prototype.uniform = function(name, value, i) {
@@ -133,6 +133,10 @@ Igloo.Program.prototype.uniform = function(name, value, i) {
             default:
                 throw new Error('Invalid vector length');
             }
+        } else if (value instanceof Float32Array) {
+            this.gl['uniform' + i + 'fv'](v, value);
+        } else if (value instanceof Int32Array) {
+            this.gl['uniform' + i + 'iv'](v, value);
         } else if (i) {
             this.gl.uniform1i(v, value);
         } else {
