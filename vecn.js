@@ -173,7 +173,7 @@ VecN.make = function(n) {
      * @method
      */
     Vec.prototype.normalize = function normalize() {
-        return this.divide(this.magnitude());
+        return this.fdivide(this.magnitude());
     };
 
     /**
