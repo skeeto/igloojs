@@ -117,6 +117,21 @@ Igloo.prototype.elements = function(data, usage) {
 };
 
 /**
+ * @param {TexImageSource} [source]
+ * @param {GLenum} [format=GL_RGBA]
+ * @param {GLenum} [wrap=GL_CLAMP_TO_EDGE]
+ * @param {GLenum} [filter=GL_LINEAR]
+ * @returns {Igloo.Texture}
+ */
+Igloo.prototype.texture = function(source, format, wrap, filter) {
+    var texture = new Igloo.Texture(this.gl, format, wrap, filter);
+    if (source != null) {
+        texture.set(source);
+    }
+    return texture;
+};
+
+/**
  * Fluent WebGLProgram wrapper for managing variables and data. The
  * constructor compiles and links a program from a pair of shaders.
  * Throws an exception if compiling or linking fails.
@@ -320,6 +335,100 @@ Igloo.Buffer.prototype.update = function(data, usage) {
         this.size = data.byteLength;
     } else {
         gl.bufferSubData(this.target, 0, data);
+    }
+    return this;
+};
+
+/**
+ * Create a new texture, optionally filled blank.
+ * @param {WebGLRenderingContext} gl
+ * @param {GLenum} [format=GL_RGBA]
+ * @param {GLenum} [wrap=GL_CLAMP_TO_EDGE]
+ * @param {GLenum} [filter=GL_LINEAR]
+ * @returns {Igloo.Texture}
+ */
+Igloo.Texture = function(gl, format, wrap, filter) {
+    this.gl = gl;
+    var texture = this.texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    wrap = wrap == null ? gl.CLAMP_TO_EDGE : wrap;
+    filter = filter == null ? gl.LINEAR : filter;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+    this.format = format = format == null ? gl.RGBA : format;
+};
+
+/**
+ * @param {number} [unit] active texture unit to bind
+ * @returns {Igloo.Texture}
+ */
+Igloo.Texture.prototype.bind = function(unit) {
+    var gl = this.gl;
+    if (unit != null) {
+        gl.activeTexture(gl.TEXTURE0 + unit);
+    }
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    return this;
+};
+
+/**
+ * Set texture to particular size, filled with vec4(0, 0, 0, 1).
+ * @param {number} width
+ * @param {number} height
+ * @returns {Igloo.Texture}
+ */
+Igloo.Texture.prototype.blank = function(width, height) {
+    var gl = this.gl;
+    this.bind();
+    gl.texImage2D(gl.TEXTURE_2D, 0, this.format, width, height,
+                  0, this.format, gl.UNSIGNED_BYTE, null);
+    return this;
+};
+
+
+/**
+ * Set the texture to a particular image.
+ * @param {Array|ArrayBufferView|TexImageSource} source
+ * @param {number} [width]
+ * @param {number} [height]
+ * @returns {Igloo.Texture}
+ */
+Igloo.Texture.prototype.set = function(source, width, height) {
+    var gl = this.gl;
+    this.bind();
+    if (source instanceof Array) source = new Uint8Array(source);
+    if (width != null || height != null) {
+        gl.texImage2D(gl.TEXTURE_2D, 0, this.format, width, height, 0,
+                      gl.UNSIGNED_BYTE, source);
+    } else {
+        gl.texImage2D(gl.TEXTURE_2D, 0, this.format,
+                      this.format, gl.UNSIGNED_BYTE, source);
+    }
+    return this;
+};
+
+/**
+ * Set part of the texture to a particular image.
+ * @param {Array|ArrayBufferView|TexImageSource} source
+ * @param {number} xoff
+ * @param {number} yoff
+ * @param {number} [width]
+ * @param {number} [height]
+ * @returns {Igloo.Texture}
+ */
+Igloo.Texture.prototype.subset = function(source, xoff, yoff, width, height) {
+    var gl = this.gl;
+    this.bind();
+    if (source instanceof Array) source = new Uint8Array(source);
+    if (width != null || height != null) {
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, xoff, yoff,
+                         width, height,
+                         this.format, gl.UNSIGNED_BYTE, source);
+    } else {
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, xoff, yoff,
+                         this.format, gl.UNSIGNED_BYTE, source);
     }
     return this;
 };
