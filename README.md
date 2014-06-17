@@ -13,7 +13,8 @@ original C-style result checking.
 
 ```js
 var canvas = document.getElementById('my-canvas');
-var program = new Igloo.Program(canvas, 'src/project.vert', 'src/color.frag');
+var igloo = new Igloo(canvas);
+var program = igloo.program('src/project.vert', 'src/color.frag');
 // ...
 program.use()
     .uniform('color', vec3(1, 0, 0))
