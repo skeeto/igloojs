@@ -33,7 +33,7 @@ Demo.prototype.draw = function() {
         .uniform('scale', 1.2)
         .uniformi('image', 0)
         .attrib('points', buffer)
-        .draw(igloo.gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
+        .draw(this.igloo.gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
 }
 ```
 
