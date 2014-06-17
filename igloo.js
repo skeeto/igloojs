@@ -9,10 +9,15 @@
  * @namespace
  */
 function Igloo(gl) {
+    var canvas;
     if (gl instanceof HTMLCanvasElement) {
+        canvas = gl;
         gl = Igloo.getContext(gl, true);
+    } else {
+        canvas = gl.canvas;
     }
     this.gl = gl;
+    this.canvas = canvas;
     this.defaultFramebuffer = new Igloo.Framebuffer(gl, null);
 }
 
