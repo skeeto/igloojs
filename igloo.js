@@ -13,6 +13,7 @@ function Igloo(gl) {
         gl = Igloo.getContext(gl, true);
     }
     this.gl = gl;
+    this.defaultFramebuffer = new Igloo.Framebuffer(gl, null);
 }
 
 /**
@@ -129,6 +130,16 @@ Igloo.prototype.texture = function(source, format, wrap, filter) {
         texture.set(source);
     }
     return texture;
+};
+
+/**
+ * @param {Igloo.Texture} [texture]
+ * @returns {Igloo.Framebuffer}
+ */
+Igloo.prototype.framebuffer = function(texture) {
+    var framebuffer = new Igloo.Framebuffer(this.gl);
+    if (texture != null) framebuffer.attach(texture);
+    return framebuffer;
 };
 
 /**
@@ -429,6 +440,65 @@ Igloo.Texture.prototype.subset = function(source, xoff, yoff, width, height) {
     } else {
         gl.texSubImage2D(gl.TEXTURE_2D, 0, xoff, yoff,
                          this.format, gl.UNSIGNED_BYTE, source);
+    }
+    return this;
+};
+
+/**
+ * @param {WebGLRenderingContext} gl
+ * @param {WebGLFramebuffer} [framebuffer] to be wrapped (null for default)
+ * @returns {Igloo.Framebuffer}
+ */
+Igloo.Framebuffer = function(gl, framebuffer) {
+    this.gl = gl;
+    this.framebuffer =
+        arguments.length == 2 ? framebuffer : gl.createFramebuffer();
+    this.renderbuffer = null;
+};
+
+/**
+ * @returns {Igloo.Framebuffer}
+ */
+Igloo.Framebuffer.prototype.bind = function() {
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+    return this;
+};
+
+/**
+ * @returns {Igloo.Framebuffer}
+ */
+Igloo.Framebuffer.prototype.unbind = function() {
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    return this;
+};
+
+/**
+ * @param {Igloo.Texture} texture
+ * @returns {Igloo.Framebuffer}
+ */
+Igloo.Framebuffer.prototype.attach = function(texture) {
+    var gl = this.gl;
+    this.bind();
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+                            gl.TEXTURE_2D, texture.texture, 0);
+    return this;
+};
+
+/**
+ * Attach a renderbuffer as a depth buffer for depth-tested rendering.
+ * @param {number} width
+ * @param {number} height
+ * @returns {Igloo.Framebuffer}
+ */
+Igloo.Framebuffer.prototype.attachDepth = function(width, height) {
+    var gl = this.gl;
+    this.bind();
+    if (this.renderbuffer == null) {
+        this.renderbuffer = gl.createRenderbuffer();
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16,
+                               width, height);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT,
+                                   gl.RENDERBUFFER, this.renderbuffer);
     }
     return this;
 };
