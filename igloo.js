@@ -22,6 +22,13 @@ function Igloo(gl) {
 }
 
 /**
+ * To be used in a vec2 GL_TRIANGLE_STRIP draw.
+ * @type {Float32Array}
+ * @constant
+ */
+Igloo.QUAD2 = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+
+/**
  * Asynchronously or synchronously fetch data from the server.
  * @param {string} url
  * @param {Function} [callback] if provided, call is asynchronous
@@ -58,13 +65,6 @@ Igloo.getContext = function(canvas, noerror) {
         return gl;
     }
 };
-
-/**
- * To be used in a vec2 GL_TRIANGLE_STRIP draw.
- * @type {Float32Array}
- * @constant
- */
-Igloo.QUAD2 = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
 
 /**
  * @param {string} string
