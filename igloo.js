@@ -75,6 +75,16 @@ Igloo.looksLikeURL = function(string) {
 };
 
 /**
+ * @param {*} object
+ * @returns {boolean} true if object is an array or typed array
+ */
+Igloo.isArray = function(object) {
+    var name = Object.prototype.toString.apply(object, []),
+        re = / (Float(32|64)|Int(16|32|8)|Uint(16|32|8(Clamped)?))?Array]$/;
+    return re.exec(name) != null;
+};
+
+/**
  * Creates a program from a program configuration.
  *
  * @param {string} vertex URL or source of the vertex shader
@@ -198,8 +208,8 @@ Igloo.Program.prototype.use = function() {
 /**
  * Declare/set a uniform or set a uniform's data.
  * @param {string} name uniform variable name
- * @param {number|VecN} [value]
- * @param {boolean|number} [i] size, or if true use the integer version
+ * @param {number|Array|ArrayBufferView} [value]
+ * @param {boolean} [i] if true use the integer version
  * @returns {Igloo.Program} this
  */
 Igloo.Program.prototype.uniform = function(name, value, i) {
@@ -208,39 +218,33 @@ Igloo.Program.prototype.uniform = function(name, value, i) {
     } else {
         if (this.vars[name] == null) this.uniform(name);
         var v = this.vars[name];
-        if (value instanceof VecN) {
-            switch (value.length) {
-            case 2:
-                if (i)
-                    this.gl.uniform2i(v, value.x, value.y);
-                else
-                    this.gl.uniform2f(v, value.x, value.y);
-                break;
-            case 3:
-                if (i)
-                    this.gl.uniform3i(v, value.x, value.y, value.z);
-                else
-                    this.gl.uniform3f(v, value.x, value.y, value.z);
-                break;
-            case 4:
-                if (i)
-                    this.gl.uniform4i(v, value.x, value.y, value.z, value.w);
-                else
-                    this.gl.uniform4f(v, value.x, value.y, value.z, value.w);
-                break;
-            default:
-                throw new Error('Invalid vector length');
+        if (Igloo.isArray(value)) {
+            var method = 'uniform' + value.length + (i ? 'i' : 'f') + 'v';
+            this.gl[method](v, value);
+        } else if (typeof value === 'number' || typeof value === 'boolean') {
+            if (i) {
+                this.gl.uniform1i(v, value);
+            } else {
+                this.gl.uniform1f(v, value);
             }
-        } else if (value instanceof Float32Array) {
-            this.gl['uniform' + value.length + 'fv'](v, value);
-        } else if (value instanceof Int32Array) {
-            this.gl['uniform' + value.length + 'iv'](v, value);
-        } else if (i) {
-            this.gl.uniform1i(v, value);
         } else {
-            this.gl.uniform1f(v, value);
+            throw new Error('Invalid uniform value: ' + value);
         }
     }
+    return this;
+};
+
+/**
+ * Set a uniform's data to a specific matrix.
+ * @param {string} name uniform variable name
+ * @param {Array|ArrayBufferView} matrix
+ * @param {boolean} [transpose=false]
+ * @returns {Igloo.Program} this
+ */
+Igloo.Program.prototype.matrix = function(name, matrix, transpose) {
+    if (this.vars[name] == null) this.uniform(name);
+    var method = 'uniformMatrix' + Math.sqrt(matrix.length) + 'fv';
+    this.gl[method](this.vars[name], Boolean(transpose), matrix);
     return this;
 };
 

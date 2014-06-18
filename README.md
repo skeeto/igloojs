@@ -2,7 +2,9 @@
 
 Igloo is a minimal, fluent, object-oriented wrapper API for WebGL. The
 idea is to maintain WebGL's low-level graphics access but fit it to
-JavaScript idioms and simplify the API.
+JavaScript idioms and simplify the API. It's designed to play *very*
+well with [glMatrix](http://glmatrix.net/), though its use is not
+strictly required.
 
 WebGL requires lots of boilerplate to use directly and the existing
 abstraction wrappers are too high-level. The long term goal is to make
@@ -12,9 +14,11 @@ calls don't dominate small programs.
 ![](http://i.imgur.com/snY3Gh2.png)
 
 Igloo is *not* intended to completely replace use of the
-WebGLRenderingContext object. It's still needed for all the
-enumerations, and occasionally you may need to do something that Igloo
-doesn't cover.
+WebGLRenderingContext object, nor is it intended to hide details from
+beginners. The WebGLRenderingContext object still needed for all the
+enumerations, occasionally you may need to do something that Igloo
+doesn't cover, and you still need to understand the intricacies of the
+OpenGL API,.
 
 ## Example Usage
 
@@ -29,7 +33,7 @@ function Demo() {
 Demo.prototype.draw = function() {
     this.image.bind(0);  // active texture 0
     program.use()
-        .uniform('tint', vec3(1, 0, 0))
+        .uniform('tint', [1, 0, 0])
         .uniform('scale', 1.2)
         .uniformi('image', 0)
         .attrib('points', buffer)
@@ -38,7 +42,8 @@ Demo.prototype.draw = function() {
 ```
 
 This example (shader code not shown) would display a scaled, tinted
-image on the screen.
+image on the screen. No other WebGL calls are required to make this
+work.
 
 ## Documentation
 
@@ -50,21 +55,3 @@ buffers, textures, and framebuffers. The object being wrapped is
 directly accessible through the name of the kind of thing
 (texobject.texture, arraybuffer.buffer, etc.) in case you need to
 access it.
-
-## Vector and Matrix Library
-
-Vectors come in three lengths: 2, 3, or 4. They are intended to be
-immutable, reasonably performant, support swizzling, and can be
-constructed from each other like GLSL vectors.
-
-```js
-var foo = vec3(1, 2, 3);
-foo.zxy;         // => {x: 3, y: 2, z: 1}
-var bar = vec4(foo.xy, -1, 0);
-bar;             // => {x: 1, y: 2, z: -1, w: 0}
-```
-
-These vectors can be given to the `uniform()` method for binding to
-shader uniforms.
-
-Matrix library coming soon.
