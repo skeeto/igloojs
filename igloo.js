@@ -454,6 +454,21 @@ Igloo.Texture.prototype.subset = function(source, xoff, yoff, width, height) {
 };
 
 /**
+ * Copy part/all of the current framebuffer to this image.
+ * @param {Array|ArrayBufferView|TexImageSource} source
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ * @returns {Igloo.Texture}
+ */
+Igloo.Texture.prototype.copy = function(x, y, width, height) {
+    var gl = this.gl;
+    gl.copyTexImage2D(gl.TEXTURE_2D, 0, this.format, x, y, width, height, 0);
+    return this;
+};
+
+/**
  * @param {WebGLRenderingContext} gl
  * @param {WebGLFramebuffer} [framebuffer] to be wrapped (null for default)
  * @returns {Igloo.Framebuffer}
