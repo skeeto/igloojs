@@ -5,11 +5,11 @@
  */
 var VecN = VecN || function() {};
 
-VecN.FIELDS = 'xyzwabcdefghijklmnopqrstuv'.split('');
+VecN.FIELDS = ['xyzw', 'rgba', 'stpq', '0123'];
 
 VecN.make = function(n) {
-    if (n > VecN.FIELDS.length) {
-        throw new Error('VecN limited to ' + VecN.FIELDS.length);
+    if (n > VecN.FIELDS[0].length) {
+        throw new Error('VecN limited to ' + VecN.FIELDS[0].length);
     }
 
     function func(params, body) {
@@ -20,7 +20,7 @@ VecN.make = function(n) {
         return new factory();
     }
 
-    var fields = VecN.FIELDS.slice(0, n);
+    var fields = VecN.FIELDS[0].split('').slice(0, n);
 
     /**
      * @constructor
@@ -192,31 +192,42 @@ VecN.make = function(n) {
 
     /* Setup swizzling. */
 
-    function swizzle(fields) {
-        var args = fields.map(function(field) {
-            return 'this.' + field;
+    function swizzle(indexes, aliases) {
+        var set = [];
+        var args = indexes.map(function(i) {
+            set.push(aliases[i]);
+            return 'this.' + fields[i];
         }).join(', ');
-        Object.defineProperty(Vec.prototype, fields.join(''), {
-            get: new Function('return new this.VecN.Vec' + fields.length +
-                              '(' + args + ');')
+        var f = null;
+        if (indexes.length > 1) {
+            f = new Function('return new this.VecN.Vec' +
+                             n + '(' + args + ');');
+        } else {
+            f = new Function('return ' + args);
+        }
+        Object.defineProperty(Vec.prototype, set.join(''), {
+            get: f
         });
     }
 
-    function swizzleRec(stack, count) {
-        fields.forEach(function(field) {
-            stack.push(field);
+    function swizzleRec(aliases, stack, count) {
+        [0, 1, 2, 3].forEach(function(i) {
+            stack.push(i);
             if (count === 1) {
-                swizzle(stack);
+                swizzle(stack, aliases);
             } else {
-                swizzleRec(stack, count - 1);
+                swizzleRec(aliases, stack, count - 1);
             }
             stack.pop();
         });
     }
 
     if (n <= 6) { // stop at 7,776
-        for (var i = 2; i <= n; i++) {
-            swizzleRec([], i);
+        for (var a = 0; a < VecN.FIELDS.length; a++) {
+            var aliases = VecN.FIELDS[a];
+            for (var i = a > 0 ? 1 : 2; i <= n; i++) {
+                swizzleRec(aliases.split(''), [], i);
+            }
         }
     }
 
@@ -226,7 +237,6 @@ VecN.make = function(n) {
 
     return Vec;
 };
-(10);
 
 /**
  * Create a convenience constructor function.
