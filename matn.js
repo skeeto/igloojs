@@ -2,6 +2,22 @@
 
 var MatN = MatN || function() {};
 
+MatN.gather = function(constructor, args) {
+    var values = [null];
+    for (var i = 0; i < args.length; i++) {
+        var a = args[i];
+        if (a instanceof VecN) {
+            for (var vi = 0; vi < a.length; vi++) {
+                values.push(a[vi]);
+            }
+        } else {
+            values.push(a);
+        }
+    }
+    var f = constructor.bind.apply(constructor, values);
+    return new f();
+};
+
 MatN.Mat2 = function(m00, m01,
                      m10, m11) {
     this[0] = vec2(m00, m01);
@@ -38,6 +54,16 @@ MatN.Mat2.prototype.toString = function() {
     var m = this;
     return '[Mat2 (' + [m[0][0], m[0][1], m[1][0], m[1][1]].join(', ') + ')]';
 };
+
+function mat2(v) {
+    if (arguments.length === 1 && typeof v === 'number') {
+        return MatN.Mat2.IDENTITY.multiply(v);
+    } else if (arguments.length === 1 && v instanceof MatN.Mat2) {
+        return v;
+    } else {
+        return MatN.gather(MatN.Mat2, Array.prototype.slice.apply(arguments));
+    }
+}
 
 MatN.Mat3 = function(m00, m01, m02,
                      m10, m11, m12,
