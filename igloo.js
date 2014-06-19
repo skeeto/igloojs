@@ -1,18 +1,19 @@
 /**
- * @version 0.1.1
+ * @version 0.1.2
  */
 
 /**
  * Wrap WebGLRenderingContext objects with useful behavior.
  * @param {WebGLRenderingContext|HTMLCanvasElement} gl
+ * @param {Object} [options] to pass to getContext()
  * @returns {Igloo}
  * @namespace
  */
-function Igloo(gl) {
+function Igloo(gl, options) {
     var canvas;
     if (gl instanceof HTMLCanvasElement) {
         canvas = gl;
-        gl = Igloo.getContext(gl, true);
+        gl = Igloo.getContext(gl, options);
     } else {
         canvas = gl.canvas;
     }
@@ -48,14 +49,15 @@ Igloo.fetch = function(url, callback) {
 
 /**
  * @param {HTMLCanvasElement} canvas
- * @param {boolean} [error] If true, throw an error rather than return null
+ * @param {Object} [options] to pass to getContext()
+ * @param {boolean} [noerror] If true, return null instead of throwing
  * @returns {?WebGLRenderingContext} a WebGL rendering context.
  */
-Igloo.getContext = function(canvas, noerror) {
+Igloo.getContext = function(canvas, options, noerror) {
     var gl;
     try {
-        gl = canvas.getContext('webgl') ||
-            canvas.getContext('experimental-webgl');
+        gl = canvas.getContext('webgl', options || {}) ||
+            canvas.getContext('experimental-webgl', options || {});
     } catch (e) {
         gl = null;
     }
