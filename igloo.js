@@ -422,7 +422,8 @@ Igloo.Texture.prototype.set = function(source, width, height) {
     this.bind();
     if (source instanceof Array) source = new Uint8Array(source);
     if (width != null || height != null) {
-        gl.texImage2D(gl.TEXTURE_2D, 0, this.format, width, height, 0,
+        gl.texImage2D(gl.TEXTURE_2D, 0, this.format,
+                      width, height, 0, this.format,
                       gl.UNSIGNED_BYTE, source);
     } else {
         gl.texImage2D(gl.TEXTURE_2D, 0, this.format,
