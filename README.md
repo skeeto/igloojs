@@ -32,11 +32,11 @@ function Demo() {
 
 Demo.prototype.draw = function() {
     this.image.bind(0);  // active texture 0
-    program.use()
+    this.program.use()
         .uniform('tint', [1, 0, 0])
         .uniform('scale', 1.2)
         .uniformi('image', 0)
-        .attrib('points', buffer)
+        .attrib('points', this.quad, 2)
         .draw(this.igloo.gl.TRIANGLE_STRIP, Igloo.QUAD2.length / 2);
 }
 ```
