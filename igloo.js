@@ -73,7 +73,7 @@ Igloo.getContext = function(canvas, options, noerror) {
  * @returns {boolean} True if the string looks like a URL
  */
 Igloo.looksLikeURL = function(string) {
-    return /^[\w+:\/\/]/.exec(string) != null;
+    return /^\w+:\/\//.exec(string) != null;
 };
 
 /**
