@@ -144,7 +144,7 @@ Igloo.prototype.elements = function(data, usage) {
  */
 Igloo.prototype.texture = function(source, format, wrap, filter, type) {
     var texture = new Igloo.Texture(this.gl, format, wrap, filter, type);
-    if (source !== null) {
+    if (source != null) {
         texture.set(source);
     }
     return texture;
