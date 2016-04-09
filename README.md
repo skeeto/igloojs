@@ -55,3 +55,7 @@ buffers, textures, and framebuffers. The object being wrapped is
 directly accessible through the name of the kind of thing
 (texobject.texture, arraybuffer.buffer, etc.) in case you need to
 access it.
+
+## Alternative Bindings
+
+* [skew-igloo](https://github.com/ryankaplan/skew-igloo)
