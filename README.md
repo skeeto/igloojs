@@ -18,7 +18,7 @@ WebGLRenderingContext object, nor is it intended to hide details from
 beginners. The WebGLRenderingContext object still needed for all the
 enumerations, occasionally you may need to do something that Igloo
 doesn't cover, and you still need to understand the intricacies of the
-OpenGL API,.
+OpenGL API.
 
 ## Example Usage
 
