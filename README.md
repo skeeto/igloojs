@@ -58,4 +58,16 @@ access it.
 
 ## Alternative Bindings
 
-* [skew-igloo](https://github.com/ryankaplan/skew-igloo)
+* [skew-igloo](https://github.com/ryankaplan/skew-igloo) (Skew)
+* [igloo-ts](https://github.com/joewood/igloo-ts) (TypeScirpt)
+
+## IglooJS Showcase
+
+* Visualizations in [NYT: Miles of Ice Collapsing Into the Sea](https://www.nytimes.com/interactive/2017/05/18/climate/antarctica-ice-melt-climate-change.html)
+* Various demos:
+ [Liquid](http://nullprogram.com/fun-liquid/webgl/),
+ [Particles](http://nullprogram.com/webgl-particles/),
+ [Voronoi](http://nullprogram.com/voronoi-toy/),
+ [Game of Life](http://nullprogram.com/webgl-game-of-life/),
+ [Path Solver](http://nullprogram.com/webgl-path-solver/),
+ [Feedback](http://nullprogram.com/Feedback/webgl/)
