@@ -59,7 +59,7 @@ access it.
 ## Alternative Bindings
 
 * [skew-igloo](https://github.com/ryankaplan/skew-igloo) (Skew)
-* [igloo-ts](https://github.com/joewood/igloo-ts) (TypeScirpt)
+* [igloo-ts](https://github.com/joewood/igloo-ts) (TypeScript)
 
 ## IglooJS Showcase
 
