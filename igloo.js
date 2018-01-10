@@ -171,6 +171,7 @@ Igloo.prototype.framebuffer = function(texture) {
  */
 Igloo.Program = function(gl, vertex, fragment) {
     this.gl = gl;
+    this.debug = false;
     var p = this.program = gl.createProgram();
     gl.attachShader(p, this.makeShader(gl.VERTEX_SHADER, vertex));
     gl.attachShader(p, this.makeShader(gl.FRAGMENT_SHADER, fragment));
@@ -283,6 +284,10 @@ Igloo.Program.prototype.attrib = function(name, value, size, stride) {
 
 /**
  * Call glDrawArrays or glDrawElements with this program.
+ *
+ * If the debug property is set to true on this Igloo.Program object,
+ * getError() is called immediately after the draw to check for
+ * errors.
  * @param {number} mode
  * @param {number} count the number of vertex attribs to render
  * @param {GLenum} [type] use glDrawElements of this type
@@ -295,7 +300,7 @@ Igloo.Program.prototype.draw = function(mode, count, type) {
     } else {
         gl.drawElements(mode, count, type, 0);
     }
-    if (gl.getError() !== gl.NO_ERROR) {
+    if (this.debug && gl.getError() !== gl.NO_ERROR) {
         throw new Error('WebGL rendering error');
     }
     return this;
